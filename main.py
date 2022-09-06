@@ -13,19 +13,7 @@ from mediapipe.python.solutions.drawing_utils import _normalized_to_pixel_coordi
 # ======================CONSTANTS======================
 # =====================================================
 
-# Left and right eye chosen landmarks.
-left_eye_idxs = [362, 385, 387, 263, 373, 380]
-right_eye_idxs = [33, 160, 158, 133, 153, 144]
-all_idxs = left_eye_idxs + right_eye_idxs  # This list is only used for plotting the landmarks.
 
-# Used for coloring landmark points.
-# It's value depends on the condition whether the EAR value
-# has dropped below threshold limit or not.
-
-RED = (0, 0, 255)  # BGR
-GREEN = (0, 255, 0)  # BGR
-
-alarm_file_path = "wake_up_og.wav"
 # -----------------------------------------------------
 
 # =====================================================
@@ -107,187 +95,205 @@ def plot_text(image, text, origin, color, font=cv2.FONT_HERSHEY_SIMPLEX, fntScal
 # =================STREAMLIT COMPONENTS================
 # =====================================================
 
-st.title("Drowsiness Detection!")
 
-col1, col2 = st.columns(2)
+def mediapipe_app():
 
-with col1:
-    EAR_THRESH = st.slider("Eye Aspect Ratio threshold:", 0.0, 0.4, 0.18, 0.01)
+    # Left and right eye chosen landmarks.
+    left_eye_idxs = [362, 385, 387, 263, 373, 380]
+    right_eye_idxs = [33, 160, 158, 133, 153, 144]
+    all_idxs = left_eye_idxs + right_eye_idxs  # This list is only used for plotting the landmarks.
 
-with col2:
-    WAIT_TIME = st.slider("Seconds to wait before sounding alarm:", 0.0, 5.0, 1.0, 0.25)
+    # Used for coloring landmark points.
+    # It's value depends on the condition whether the EAR value
+    # has dropped below threshold limit or not.
 
+    RED = (0, 0, 255)  # BGR
+    GREEN = (0, 255, 0)  # BGR
 
-# -----------------------------------------------------
+    alarm_file_path = "wake_up_og.wav"
 
-# =====================================================
-# ==============Image and Audio Processing=============
-# =====================================================
+    st.title("Drowsiness Detection!")
 
-# Initialize face mesh solution
-face_mesh = get_mediapipe_app()
+    col1, col2 = st.columns(2)
 
-lock = threading.Lock()  # For updating states
+    with col1:
+        EAR_THRESH = st.slider("Eye Aspect Ratio threshold:", 0.0, 0.4, 0.18, 0.01)
 
-# For tracking counters and sharing states in and out of callbacks.
-state_tracker = {
-    "play_alarm": False,
-    "start_time": time.perf_counter(),
-    "DROWSY_TIME": 0.0,
-    "COLOR": GREEN,
-}
+    with col2:
+        WAIT_TIME = st.slider("Seconds to wait before sounding alarm:", 0.0, 5.0, 1.0, 0.25)
 
-# For audio playing
-play_state_tracker = {"curr_segment": -1}
+    # -----------------------------------------------------
 
-wav_file = AudioSegment.from_file(file=alarm_file_path, format="wav")
-wav_file = wav_file.set_channels(2)
-wav_file = wav_file.set_frame_rate(48000)
-wav_file = wav_file.set_sample_width(2)
+    # =====================================================
+    # ==============Image and Audio Processing=============
+    # =====================================================
 
-ms_per_audio_segment = 20  # in milliseconds
+    # Initialize face mesh solution
+    face_mesh = get_mediapipe_app()
 
-audio_segments = [
-    wav_file[i : i + ms_per_audio_segment] for i in range(0, len(wav_file) - len(wav_file) % ms_per_audio_segment, ms_per_audio_segment)
-]
-total_segments = len(audio_segments) - 1  # -1 because we start from 0.
+    lock = threading.Lock()  # For updating states
 
+    # For tracking counters and sharing states in and out of callbacks.
+    state_tracker = {
+        "play_alarm": False,
+        "start_time": time.perf_counter(),
+        "DROWSY_TIME": 0.0,
+        "COLOR": GREEN,
+    }
 
-def video_frame_callback(frame: av.VideoFrame) -> av.VideoFrame:
+    # For audio playing
+    play_state_tracker = {"curr_segment": -1}
 
-    RESET_STATE = False
-    COLOR = state_tracker["COLOR"]
+    wav_file = AudioSegment.from_file(file=alarm_file_path, format="wav")
+    wav_file = wav_file.set_channels(2)
+    wav_file = wav_file.set_frame_rate(48000)
+    wav_file = wav_file.set_sample_width(2)
 
-    frame = frame.to_ndarray(format="bgr24")
-    cam_h, cam_w, _ = frame.shape
+    ms_per_audio_segment = 20  # in milliseconds
 
-    EAR_txt_pos = (int(cam_w // 2 * 1.3), 30)
-    ALM_txt_pos = (10, cam_h - 50)
-    DROWSY_TIME_txt_pos = (10, cam_h - 100)
+    audio_segments = [
+        wav_file[i : i + ms_per_audio_segment] for i in range(0, len(wav_file) - len(wav_file) % ms_per_audio_segment, ms_per_audio_segment)
+    ]
+    total_segments = len(audio_segments) - 1  # -1 because we start from 0.
 
-    frame.flags.writeable = False
+    def video_frame_callback(frame: av.VideoFrame) -> av.VideoFrame:
 
-    results = face_mesh.process(frame)
+        RESET_STATE = False
+        COLOR = state_tracker["COLOR"]
 
-    if results.multi_face_landmarks:
-        landmarks = results.multi_face_landmarks[0].landmark
-        left_ear, left_lm_coordinates = get_ear(landmarks, left_eye_idxs, cam_w, cam_h)
-        right_ear, right_lm_coordinates = get_ear(landmarks, right_eye_idxs, cam_w, cam_h)
-        EAR = (left_ear + right_ear) / 2.0
+        frame = frame.to_ndarray(format="bgr24")
+        cam_h, cam_w, _ = frame.shape
 
-        for lm_coordinates in [left_lm_coordinates, right_lm_coordinates]:
-            if lm_coordinates:
-                for coord in lm_coordinates:
-                    cv2.circle(frame, coord, 2, COLOR, -1)
+        EAR_txt_pos = (int(cam_w // 2 * 1.3), 30)
+        ALM_txt_pos = (10, cam_h - 50)
+        DROWSY_TIME_txt_pos = (10, cam_h - 100)
 
-        frame = cv2.flip(frame, 1)
+        frame.flags.writeable = False
 
-        if EAR < EAR_THRESH:
+        results = face_mesh.process(frame)
 
-            # Increase DROWSY_TIME to track the time period with EAR less than threshold
-            # and reset the start_time for the next iteration.
-            end_time = time.perf_counter()
-            COLOR = RED
+        if results.multi_face_landmarks:
+            landmarks = results.multi_face_landmarks[0].landmark
+            left_ear, left_lm_coordinates = get_ear(landmarks, left_eye_idxs, cam_w, cam_h)
+            right_ear, right_lm_coordinates = get_ear(landmarks, right_eye_idxs, cam_w, cam_h)
+            EAR = (left_ear + right_ear) / 2.0
 
-            with lock:
-                state_tracker["DROWSY_TIME"] += end_time - state_tracker["start_time"]
-                state_tracker["start_time"] = end_time
-                state_tracker["COLOR"] = COLOR
+            for lm_coordinates in [left_lm_coordinates, right_lm_coordinates]:
+                if lm_coordinates:
+                    for coord in lm_coordinates:
+                        cv2.circle(frame, coord, 2, COLOR, -1)
 
-            DROWSY_TIME = state_tracker["DROWSY_TIME"]
+            frame = cv2.flip(frame, 1)
 
-            if DROWSY_TIME >= WAIT_TIME:
-                plot_text(frame, "WAKE UP! WAKE UP", ALM_txt_pos, COLOR)
+            if EAR < EAR_THRESH:
+
+                # Increase DROWSY_TIME to track the time period with EAR less than threshold
+                # and reset the start_time for the next iteration.
+                end_time = time.perf_counter()
+                COLOR = RED
 
                 with lock:
-                    state_tracker["play_alarm"] = True
+                    state_tracker["DROWSY_TIME"] += end_time - state_tracker["start_time"]
+                    state_tracker["start_time"] = end_time
+                    state_tracker["COLOR"] = COLOR
+
+                DROWSY_TIME = state_tracker["DROWSY_TIME"]
+
+                if DROWSY_TIME >= WAIT_TIME:
+                    plot_text(frame, "WAKE UP! WAKE UP", ALM_txt_pos, COLOR)
+
+                    with lock:
+                        state_tracker["play_alarm"] = True
+
+            else:
+                _timer = time.perf_counter()
+                DROWSY_TIME = 0.0
+                COLOR = GREEN
+                RESET_STATE = True
+
+            plot_text(frame, f"EAR: {round(EAR, 2)}", EAR_txt_pos, COLOR)
+            plot_text(frame, f"DROWSY: {round(DROWSY_TIME, 3)} Secs", DROWSY_TIME_txt_pos, COLOR)
 
         else:
             _timer = time.perf_counter()
-            DROWSY_TIME = 0.0
             COLOR = GREEN
             RESET_STATE = True
 
-        plot_text(frame, f"EAR: {round(EAR, 2)}", EAR_txt_pos, COLOR)
-        plot_text(frame, f"DROWSY: {round(DROWSY_TIME, 3)} Secs", DROWSY_TIME_txt_pos, COLOR)
+            frame = cv2.flip(frame, 1)  # Flip the frame horizontally for a selfie-view display.
 
-    else:
-        _timer = time.perf_counter()
-        COLOR = GREEN
-        RESET_STATE = True
+        if RESET_STATE:
+            with lock:
+                state_tracker["COLOR"] = COLOR
+                state_tracker["play_alarm"] = False
+                state_tracker["start_time"] = _timer
+                state_tracker["DROWSY_TIME"] = 0.0
 
-        frame = cv2.flip(frame, 1)  # Flip the frame horizontally for a selfie-view display.
+        return av.VideoFrame.from_ndarray(frame, format="bgr24")
 
-    if RESET_STATE:
-        with lock:
-            state_tracker["COLOR"] = COLOR
-            state_tracker["play_alarm"] = False
-            state_tracker["start_time"] = _timer
-            state_tracker["DROWSY_TIME"] = 0.0
+    def process_audio(frame: av.AudioFrame) -> av.AudioFrame:
 
-    return av.VideoFrame.from_ndarray(frame, format="bgr24")
+        raw_samples = frame.to_ndarray()
 
+        _play_alarm = state_tracker["play_alarm"]
+        _curr_segment = play_state_tracker["curr_segment"]
 
-def process_audio(frame: av.AudioFrame) -> av.AudioFrame:
+        if _play_alarm:
+            if _curr_segment < total_segments:
+                _curr_segment += 1
+            else:
+                _curr_segment = 0
 
-    raw_samples = frame.to_ndarray()
-
-    _play_alarm = state_tracker["play_alarm"]
-    _curr_segment = play_state_tracker["curr_segment"]
-
-    if _play_alarm:
-        if _curr_segment < total_segments:
-            _curr_segment += 1
-        else:
-            _curr_segment = 0
-
-        sound = audio_segments[_curr_segment]
-
-    else:
-        if -1 < _curr_segment < total_segments:
-            _curr_segment += 1
             sound = audio_segments[_curr_segment]
 
         else:
-            _curr_segment = -1
-            sound = AudioSegment(
-                data=raw_samples.tobytes(),
-                sample_width=frame.format.bytes,
-                frame_rate=frame.sample_rate,
-                channels=len(frame.layout.channels),
-            )
-            sound = sound.apply_gain(-100)
+            if -1 < _curr_segment < total_segments:
+                _curr_segment += 1
+                sound = audio_segments[_curr_segment]
 
-    with lock:
-        play_state_tracker["curr_segment"] = _curr_segment
+            else:
+                _curr_segment = -1
+                sound = AudioSegment(
+                    data=raw_samples.tobytes(),
+                    sample_width=frame.format.bytes,
+                    frame_rate=frame.sample_rate,
+                    channels=len(frame.layout.channels),
+                )
+                sound = sound.apply_gain(-100)
 
-    channel_sounds = sound.split_to_mono()
-    channel_samples = [s.get_array_of_samples() for s in channel_sounds]
+        with lock:
+            play_state_tracker["curr_segment"] = _curr_segment
 
-    new_samples = np.array(channel_samples).T
+        channel_sounds = sound.split_to_mono()
+        channel_samples = [s.get_array_of_samples() for s in channel_sounds]
 
-    new_samples = new_samples.reshape(raw_samples.shape)
-    new_frame = av.AudioFrame.from_ndarray(new_samples, layout=frame.layout.name)
-    new_frame.sample_rate = frame.sample_rate
+        new_samples = np.array(channel_samples).T
 
-    return new_frame
+        new_samples = new_samples.reshape(raw_samples.shape)
+        new_frame = av.AudioFrame.from_ndarray(new_samples, layout=frame.layout.name)
+        new_frame.sample_rate = frame.sample_rate
+
+        return new_frame
+
+    # -----------------------------------------------------
+
+    # =====================================================
+    # ====================WEBRTC STREAM====================
+    # =====================================================
+
+    ctx = webrtc_streamer(
+        key="drowsiness-detection",
+        video_frame_callback=video_frame_callback,
+        audio_frame_callback=process_audio,
+        rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},  # Add this config
+        # media_stream_constraints={"video": {"width": {"exact": 1280}, "height": {"exact": 720}}, "audio": True},
+        video_html_attrs=VideoHTMLAttributes(autoPlay=True, controls=False, muted=False),
+    )
+    # -----------------------------------------------------
+
+    return
 
 
-# -----------------------------------------------------
-
-# =====================================================
-# ====================WEBRTC STREAM====================
-# =====================================================
-
-ctx = webrtc_streamer(
-    key="drowsiness-detection",
-    video_frame_callback=video_frame_callback,
-    audio_frame_callback=process_audio,
-    rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},  # Add this config
-    # media_stream_constraints={"video": {"width": {"exact": 1280}, "height": {"exact": 720}}, "audio": True},
-    video_html_attrs=VideoHTMLAttributes(autoPlay=True, controls=False, muted=False),
-)
-# -----------------------------------------------------
+mediapipe_app()
 
 #
 # ctx = webrtc_streamer(
