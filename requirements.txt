@@ -1,6 +1,6 @@
 numpy
+mediapipe
 pydub
 streamlit
-mediapipe
-streamlit_webrtc
+streamlit==1.11.1
 protobuf
