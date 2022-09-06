@@ -1,7 +1,7 @@
 numpy
 opencv-python-headless==4.5.5.64
 pydub
-streamlit
+streamlit==1.11.1
 mediapipe
 streamlit_webrtc
 protobuf~=3.19.0
