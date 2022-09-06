@@ -7,7 +7,7 @@ import numpy as np
 import mediapipe as mp
 import streamlit as st
 from pydub import AudioSegment
-from streamlit_webrtc import webrtc_streamer
+from streamlit_webrtc import webrtc_streamer, VideoHTMLAttributes
 from mediapipe.python.solutions.drawing_utils import _normalized_to_pixel_coordinates as denormalize_coordinates
 
 # =====================================================
@@ -278,13 +278,26 @@ def process_audio(frame: av.AudioFrame) -> av.AudioFrame:
 # =====================================================
 
 ctx = webrtc_streamer(
-    key="example",
-    # media_stream_constraints=MediaStreamConstraints_SET,
+    key="drowsiness-detection",
     video_frame_callback=video_frame_callback,
     audio_frame_callback=process_audio,
-    # rtc_configuration={  # Add this config
-    #     "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
-    # },
+    rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},  # Add this config
+    video_html_attrs=VideoHTMLAttributes(autoPlay=True, controls=False, muted=False),
 )
 
 # -----------------------------------------------------
+
+
+"""
+ctx = webrtc_streamer(
+    key="vpf",
+    video_processor_factory=VideoProcessor,
+    async_processing=True,
+    video_html_attrs=VideoHTMLAttributes(
+        autoPlay=True, controls=False, style={"width": "100%"}, muted=False
+    ),
+    # media_stream_constraints={
+    #     "video": {"width": {"min": 240}, "height": {"min": 240}, "audio": False}
+    # },
+)
+"""
