@@ -1,4 +1,3 @@
-import os
 import av
 import cv2
 import time
@@ -282,9 +281,9 @@ ctx = webrtc_streamer(
     video_frame_callback=video_frame_callback,
     audio_frame_callback=process_audio,
     rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},  # Add this config
+    media_stream_constraints={"video": {"width": {"exact": 1280}, "height": {"exact": 640}}, "audio": True},
     video_html_attrs=VideoHTMLAttributes(autoPlay=True, controls=False, muted=False),
 )
-
 # -----------------------------------------------------
 
 #
