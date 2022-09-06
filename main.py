@@ -287,17 +287,15 @@ ctx = webrtc_streamer(
 
 # -----------------------------------------------------
 
-
-"""
-ctx = webrtc_streamer(
-    key="vpf",
-    video_processor_factory=VideoProcessor,
-    async_processing=True,
-    video_html_attrs=VideoHTMLAttributes(
-        autoPlay=True, controls=False, style={"width": "100%"}, muted=False
-    ),
-    # media_stream_constraints={
-    #     "video": {"width": {"min": 240}, "height": {"min": 240}, "audio": False}
-    # },
-)
-"""
+#
+# ctx = webrtc_streamer(
+#     key="vpf",
+#     video_processor_factory=VideoProcessor,
+#     async_processing=True,
+#     video_html_attrs=VideoHTMLAttributes(
+#         autoPlay=True, controls=False, style={"width": "100%"}, muted=False
+#     ),
+#     # media_stream_constraints={
+#     #     "video": {"width": {"min": 240}, "height": {"min": 240}, "audio": False}
+#     # },
+# )
