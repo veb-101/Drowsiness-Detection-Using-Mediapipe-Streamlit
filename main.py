@@ -117,7 +117,7 @@ with col1:
 with col2:
     WAIT_TIME = st.slider("Seconds to wait before sounding alarm:", 0.0, 5.0, 1.0, 0.25)
 
-attention_model = st.checkbox(label="Refine Landmkarks", help="Use an attention-based model. May increase latency.")
+
 # -----------------------------------------------------
 
 # =====================================================
@@ -125,7 +125,7 @@ attention_model = st.checkbox(label="Refine Landmkarks", help="Use an attention-
 # =====================================================
 
 # Initialize face mesh solution
-face_mesh = get_mediapipe_app(refine_landmarks=attention_model)
+face_mesh = get_mediapipe_app()
 
 lock = threading.Lock()  # For updating states
 
