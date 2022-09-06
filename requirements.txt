@@ -1,5 +1,6 @@
 numpy
 opencv-python-headless
 pydub
+mediapipe
 streamlit
 streamlit_webrtc
