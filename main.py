@@ -109,7 +109,7 @@ def plot_text(image, text, origin, color, font=cv2.FONT_HERSHEY_SIMPLEX, fntScal
 
 st.title("Drowsiness Detection!")
 
-col1, col2, col3 = st.columns(3)
+col1, col2 = st.columns(2)
 
 with col1:
     EAR_THRESH = st.slider("Eye Aspect Ratio threshold:", 0.0, 0.4, 0.18, 0.01)
@@ -117,8 +117,7 @@ with col1:
 with col2:
     WAIT_TIME = st.slider("Seconds to wait before sounding alarm:", 0.0, 5.0, 1.0, 0.25)
 
-with col3:
-    attention_model = st.checkbox(label="Use attention based model", help="May increase latency.")
+attention_model = st.checkbox(label="Refine Landmkarks", help="Use an attention-based model. May increase latency.")
 # -----------------------------------------------------
 
 # =====================================================
