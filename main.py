@@ -21,9 +21,9 @@ from mediapipe.python.solutions.drawing_utils import _normalized_to_pixel_coordi
 # =====================================================
 
 
-@st.cache(
-    allow_output_mutation=True,
-)
+# @st.cache(
+#     allow_output_mutation=True,
+# )
 def get_mediapipe_app(
     max_num_faces=1,
     refine_landmarks=True,
