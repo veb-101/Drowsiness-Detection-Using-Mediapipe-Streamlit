@@ -1,5 +1,5 @@
 numpy==1.22.3
 opencv-python-headless==4.5.5.64
-pydub==0.25.1
+pydub
 streamlit
 streamlit_webrtc
