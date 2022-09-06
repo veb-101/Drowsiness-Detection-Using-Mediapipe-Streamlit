@@ -33,7 +33,9 @@ alarm_file_path = "wake_up_og.wav"
 # =====================================================
 
 
-@st.cache(allow_output_mutation=True)
+@st.cache(
+    allow_output_mutation=True,
+)
 def get_mediapipe_app(
     max_num_faces=1,
     refine_landmarks=True,
@@ -107,7 +109,7 @@ def plot_text(image, text, origin, color, font=cv2.FONT_HERSHEY_SIMPLEX, fntScal
 
 st.title("Drowsiness Detection!")
 
-col1, col2 = st.columns(2)
+col1, col2, col3 = st.columns(3)
 
 with col1:
     EAR_THRESH = st.slider("Eye Aspect Ratio threshold:", 0.0, 0.4, 0.18, 0.01)
@@ -115,6 +117,8 @@ with col1:
 with col2:
     WAIT_TIME = st.slider("Seconds to wait before sounding alarm:", 0.0, 5.0, 1.0, 0.25)
 
+with col3:
+    attention_model = st.checkbox(label="Use attention based model", help="May increase latency.")
 # -----------------------------------------------------
 
 # =====================================================
@@ -122,7 +126,7 @@ with col2:
 # =====================================================
 
 # Initialize face mesh solution
-face_mesh = get_mediapipe_app()
+face_mesh = get_mediapipe_app(refine_landmarks=attention_model)
 
 lock = threading.Lock()  # For updating states
 
