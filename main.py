@@ -33,9 +33,7 @@ alarm_file_path = "wake_up_og.wav"
 # =====================================================
 
 
-@st.cache(
-    allow_output_mutation=True,
-)
+# @st.cache(allow_output_mutation=True)
 def get_mediapipe_app(
     max_num_faces=1,
     refine_landmarks=True,
