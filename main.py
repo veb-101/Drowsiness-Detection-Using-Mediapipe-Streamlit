@@ -284,7 +284,7 @@ ctx = webrtc_streamer(
     video_frame_callback=video_frame_callback,
     audio_frame_callback=process_audio,
     rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},  # Add this config
-    media_stream_constraints={"video": {"width": {"min": 480}, "height": {"min": 480}}, "audio": True},
+    media_stream_constraints={"video": {"width": {"ideal": 480}, "height": {"ideal": 480}}, "audio": True},
     video_html_attrs=VideoHTMLAttributes(autoPlay=True, controls=False, muted=False),
 )
 # -----------------------------------------------------
