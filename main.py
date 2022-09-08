@@ -187,18 +187,18 @@ def video_frame_callback(frame: av.VideoFrame):
             end_time = time.perf_counter()
             COLOR = RED
 
-            with lock:
-                state_tracker["DROWSY_TIME"] += end_time - state_tracker["start_time"]
-                state_tracker["start_time"] = end_time
-                state_tracker["COLOR"] = COLOR
+            # with lock:
+            state_tracker["DROWSY_TIME"] += end_time - state_tracker["start_time"]
+            state_tracker["start_time"] = end_time
+            state_tracker["COLOR"] = COLOR
 
             DROWSY_TIME = state_tracker["DROWSY_TIME"]
 
             if DROWSY_TIME >= WAIT_TIME:
                 plot_text(frame, "WAKE UP! WAKE UP", ALM_txt_pos, COLOR)
 
-                with lock:
-                    state_tracker["play_alarm"] = True
+                # with lock:
+                state_tracker["play_alarm"] = True
 
         else:
             _timer = time.perf_counter()
@@ -217,11 +217,11 @@ def video_frame_callback(frame: av.VideoFrame):
         frame = cv2.flip(frame, 1)  # Flip the frame horizontally for a selfie-view display.
 
     if RESET_STATE:
-        with lock:
-            state_tracker["COLOR"] = COLOR
-            state_tracker["play_alarm"] = False
-            state_tracker["start_time"] = _timer
-            state_tracker["DROWSY_TIME"] = 0.0
+        # with lock:
+        state_tracker["COLOR"] = COLOR
+        state_tracker["play_alarm"] = False
+        state_tracker["start_time"] = _timer
+        state_tracker["DROWSY_TIME"] = 0.0
 
     return av.VideoFrame.from_ndarray(frame, format="bgr24")  # av.VideoFrame
 
@@ -256,8 +256,8 @@ def process_audio(frame: av.AudioFrame):
             )
             sound = sound.apply_gain(-100)
 
-    with lock:
-        play_state_tracker["curr_segment"] = _curr_segment
+    # with lock:
+    play_state_tracker["curr_segment"] = _curr_segment
 
     channel_sounds = sound.split_to_mono()
     channel_samples = [s.get_array_of_samples() for s in channel_sounds]
