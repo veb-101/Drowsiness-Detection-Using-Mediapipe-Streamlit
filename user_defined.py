@@ -118,8 +118,8 @@ class UserProcessFrame:
         cam_h, cam_w, _ = frame.shape
 
         EAR_txt_pos = (10, 30)
-        DROWSY_TIME_txt_pos = (10, int(cam_h // 2 * 1.4))
-        ALM_txt_pos = (10, int(cam_h // 2 * 1.5))
+        DROWSY_TIME_txt_pos = (10, int(cam_h // 2 * 1.7))
+        ALM_txt_pos = (10, int(cam_h // 2 * 1.85))
 
         frame.flags.writeable = False
 
