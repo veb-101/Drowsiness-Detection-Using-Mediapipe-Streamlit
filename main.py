@@ -52,7 +52,7 @@ def video_frame_callback(frame: av.VideoFrame):
     with lock:
         shared_state["play_alarm"] = play_alarm  # Update shared state
 
-    return av.VideoFrame.from_ndarray(frame, format="rgb24")  # Encode and return RGB frame
+    return av.VideoFrame.from_ndarray(frame, format="bgr24")  # Encode and return BGR frame
 
 
 def audio_frame_callback(frame: av.AudioFrame):
