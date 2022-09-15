@@ -1,18 +1,25 @@
-import threading
-
 import av
+import threading
 import streamlit as st
 from streamlit_webrtc import VideoHTMLAttributes, webrtc_streamer
 
 from audio_handling import AudioHandler
-from user_defined import UserProcessFrame, get_mediapipe_app
+from drowsy_detection import DrowsinessDetectionVideoFrameHandler
 
-user_process_frame = UserProcessFrame()
-
+# Define the audio 
 alarm_file_path = r"audio/wake_up_og.wav"
-audio_handler = AudioHandler(sound_file_path=alarm_file_path)
 
-lock = threading.Lock()  # thread-safe access & prevent race condition.
+
+st.set_page_config(
+    page_title="Drowsiness Detection | LearnOpenCV",
+    page_icon="https://learnopencv.com/wp-content/uploads/2017/12/favicon.png",
+    layout="centered",
+    initial_sidebar_state="expanded",
+    menu_items={
+        "About": "### Visit www.learnopencv.com for more exciting tutorials!!!",
+    },
+)
+
 
 st.title("Drowsiness Detection!")
 
@@ -25,9 +32,10 @@ with col2:
     WAIT_TIME = st.slider("Seconds to wait before sounding alarm:", 0.0, 5.0, 1.0, 0.25)
 
 
-# Initialize face mesh solution
-face_mesh = get_mediapipe_app()
+video_handler = DrowsinessDetectionVideoFrameHandler()
+audio_handler = AudioHandler(sound_file_path=alarm_file_path)
 
+lock = threading.Lock()  # thread-safe access & prevent race condition.
 
 thresholds = {
     "EAR_THRESH": EAR_THRESH,
@@ -38,13 +46,13 @@ shared_state = {"play_alarm": False}
 
 
 def video_frame_callback(frame: av.VideoFrame):
-    frame = frame.to_ndarray(format="bgr24")  # Decode and get RGB frame
+    frame = frame.to_ndarray(format="bgr24")  # Decode and convert frame to RGB
 
-    frame, play_alarm = user_process_frame.process(frame, face_mesh, thresholds)  # Process frame
+    frame, play_alarm = video_handler.process(frame, thresholds)  # Process frame
     with lock:
         shared_state["play_alarm"] = play_alarm  # Update shared state
 
-    return av.VideoFrame.from_ndarray(frame, format="bgr24")  # Encode and return BGR frame
+    return av.VideoFrame.from_ndarray(frame, format="rgb24")  # Encode and return RGB frame
 
 
 def audio_frame_callback(frame: av.AudioFrame):
@@ -65,17 +73,3 @@ ctx = webrtc_streamer(
     media_stream_constraints={"video": {"width": {"ideal": 480}, "height": {"ideal": 480}}, "audio": True},
     video_html_attrs=VideoHTMLAttributes(autoPlay=True, controls=False, muted=False),
 )
-# -----------------------------------------------------
-
-#
-# ctx = webrtc_streamer(
-#     key="vpf",
-#     video_processor_factory=VideoProcessor,
-#     async_processing=True,
-#     video_html_attrs=VideoHTMLAttributes(
-#         autoPlay=True, controls=False, style={"width": "100%"}, muted=False
-#     ),
-#     # media_stream_constraints={
-#     #     "video": {"width": {"min": 240}, "height": {"min": 240}, "audio": False}
-#     # },
-# )

@@ -1,8 +1,7 @@
-import time
-
 import cv2
-import mediapipe as mp
+import time
 import numpy as np
+import mediapipe as mp
 from mediapipe.python.solutions.drawing_utils import _normalized_to_pixel_coordinates as denormalize_coordinates
 
 
@@ -30,7 +29,7 @@ def distance(point_1, point_2):
 
 def get_ear(landmarks, refer_idxs, frame_width, frame_height):
     """
-    Calculate Eye Aspect Ratio.
+    Calculate Eye Aspect Ratio for one eye.
 
     Args:
         landmarks: (list) Detected landmarks list
@@ -91,7 +90,7 @@ def plot_text(image, text, origin, color, font=cv2.FONT_HERSHEY_SIMPLEX, fntScal
     return image
 
 
-class UserProcessFrame:
+class DrowsinessDetectionVideoFrameHandler:
     def __init__(self):
         # Left and right eye chosen landmarks.
         self.eye_idxs = {
@@ -105,6 +104,10 @@ class UserProcessFrame:
         self.RED = (0, 0, 255)  # BGR
         self.GREEN = (0, 255, 0)  # BGR
 
+        # Initializing Mediapipe FaceMesh solution pipeline 
+        self.facemesh_model = get_mediapipe_app()
+
+
         # For tracking counters and sharing states in and out of callbacks.
         self.state_tracker = {
             "start_time": time.perf_counter(),
@@ -115,20 +118,22 @@ class UserProcessFrame:
 
         self.EAR_txt_pos = (10, 30)
 
-    def process(self, frame: np.array, mp_model, thresholds: dict):
-
-        cam_h, cam_w, _ = frame.shape
-
-        DROWSY_TIME_txt_pos = (10, int(cam_h // 2 * 1.7))
-        ALM_txt_pos = (10, int(cam_h // 2 * 1.85))
-
+    def process(self, frame: np.array, thresholds: dict):
+        
+        # To improve performance, 
+        # mark the frame as not writeable to pass by reference.
         frame.flags.writeable = False
+        frame_h, frame_w, _ = frame.shape
 
-        results = mp_model.process(frame)
+        DROWSY_TIME_txt_pos = (10, int(frame_h // 2 * 1.7))
+        ALM_txt_pos = (10, int(frame_h // 2 * 1.85))
+
+
+        results = self.facemesh_model.process(frame)
 
         if results.multi_face_landmarks:
             landmarks = results.multi_face_landmarks[0].landmark
-            EAR, coordinates = calculate_avg_ear(landmarks, self.eye_idxs["left"], self.eye_idxs["right"], cam_w, cam_h)
+            EAR, coordinates = calculate_avg_ear(landmarks, self.eye_idxs["left"], self.eye_idxs["right"], frame_w, frame_h)
             frame = plot_eye_landmarks(frame, coordinates[0], coordinates[1], self.state_tracker["COLOR"])
 
             if EAR < thresholds["EAR_THRESH"]:
