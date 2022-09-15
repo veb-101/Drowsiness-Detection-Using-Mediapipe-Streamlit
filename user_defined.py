@@ -113,11 +113,12 @@ class UserProcessFrame:
             "play_alarm": False,
         }
 
+        self.EAR_txt_pos = (10, 30)
+
     def process(self, frame: np.array, mp_model, thresholds: dict):
 
         cam_h, cam_w, _ = frame.shape
 
-        EAR_txt_pos = (10, 30)
         DROWSY_TIME_txt_pos = (10, int(cam_h // 2 * 1.7))
         ALM_txt_pos = (10, int(cam_h // 2 * 1.85))
 
@@ -152,7 +153,7 @@ class UserProcessFrame:
 
             EAR_txt = f"EAR: {round(EAR, 2)}"
             DROWSY_TIME_txt = f"DROWSY: {round(self.state_tracker['DROWSY_TIME'], 3)} Secs"
-            plot_text(frame, EAR_txt, EAR_txt_pos, self.state_tracker["COLOR"])
+            plot_text(frame, EAR_txt, self.EAR_txt_pos, self.state_tracker["COLOR"])
             plot_text(frame, DROWSY_TIME_txt, DROWSY_TIME_txt_pos, self.state_tracker["COLOR"])
 
         else:
