@@ -66,6 +66,16 @@ def get_ear(landmarks, refer_idxs, frame_width, frame_height):
     return ear, coords_points
 
 
+def calculate_avg_ear(landmarks, left_eye_idxs, right_eye_idxs, image_w, image_h):
+    # Calculate Eye aspect ratio
+
+    left_ear, left_lm_coordinates = get_ear(landmarks, left_eye_idxs, image_w, image_h)
+    right_ear, right_lm_coordinates = get_ear(landmarks, right_eye_idxs, image_w, image_h)
+    Avg_EAR = (left_ear + right_ear) / 2.0
+
+    return Avg_EAR, (left_lm_coordinates, right_lm_coordinates)
+
+
 def plot_eye_landmarks(frame, left_lm_coordinates, right_lm_coordinates, color):
     for lm_coordinates in [left_lm_coordinates, right_lm_coordinates]:
         if lm_coordinates:
@@ -76,7 +86,7 @@ def plot_eye_landmarks(frame, left_lm_coordinates, right_lm_coordinates, color):
     return frame
 
 
-def plot_text(image, text, origin, color, font=cv2.FONT_HERSHEY_SIMPLEX, fntScale=1.0, thickness=2):
+def plot_text(image, text, origin, color, font=cv2.FONT_HERSHEY_SIMPLEX, fntScale=0.8, thickness=2):
     image = cv2.putText(image, text, origin, font, fntScale, color, thickness)
     return image
 
@@ -117,11 +127,8 @@ class UserProcessFrame:
 
         if results.multi_face_landmarks:
             landmarks = results.multi_face_landmarks[0].landmark
-            left_ear, left_lm_coordinates = get_ear(landmarks, self.eye_idxs["left"], cam_w, cam_h)
-            right_ear, right_lm_coordinates = get_ear(landmarks, self.eye_idxs["right"], cam_w, cam_h)
-            EAR = (left_ear + right_ear) / 2.0
-
-            frame = plot_eye_landmarks(frame, left_lm_coordinates, right_lm_coordinates, self.state_tracker["COLOR"])
+            EAR, coordinates = calculate_avg_ear(landmarks, self.eye_idxs["left"], self.eye_idxs["right"], cam_w, cam_h)
+            frame = plot_eye_landmarks(frame, coordinates[0], coordinates[1], self.state_tracker["COLOR"])
 
             if EAR < thresholds["EAR_THRESH"]:
 

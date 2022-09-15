@@ -4,9 +4,7 @@ from pydub import AudioSegment
 
 
 class AudioHandler:
-    """
-    To play/pass custom audio based on some event
-    """
+    """To play/pass custom audio based on some event"""
 
     def __init__(self, sound_file_path: str = ""):
 
