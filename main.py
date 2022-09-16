@@ -26,21 +26,23 @@ st.title("Drowsiness Detection!")
 col1, col2 = st.columns(2)
 
 with col1:
+    # Lowest valid value of Eye Aspect Ratio. Ideal values [0.15, 0.2].
     EAR_THRESH = st.slider("Eye Aspect Ratio threshold:", 0.0, 0.4, 0.18, 0.01)
 
 with col2:
+    # The amount to time (in seconds) to wait before sounding the alarm.
     WAIT_TIME = st.slider("Seconds to wait before sounding alarm:", 0.0, 5.0, 1.0, 0.25)
+
+thresholds = {
+    "EAR_THRESH": EAR_THRESH,
+    "WAIT_TIME": WAIT_TIME,
+}
 
 
 video_handler = DrowsinessDetectionVideoFrameHandler()
 audio_handler = AudioHandler(sound_file_path=alarm_file_path)
 
 lock = threading.Lock()  # thread-safe access & prevent race condition.
-
-thresholds = {
-    "EAR_THRESH": EAR_THRESH,
-    "WAIT_TIME": WAIT_TIME,
-}
 
 shared_state = {"play_alarm": False}
 

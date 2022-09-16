@@ -36,9 +36,7 @@ class AudioHandler:
 
         self.audio_segments = [
             self.custom_audio[i : i + self.ms_per_audio_segment]
-            for i in range(
-                0, self.custom_audio_len - self.custom_audio_len % self.ms_per_audio_segment, self.ms_per_audio_segment
-            )
+            for i in range(0, self.custom_audio_len - self.custom_audio_len % self.ms_per_audio_segment, self.ms_per_audio_segment)
         ]
         self.total_segments = len(self.audio_segments) - 1  # -1 because we start from 0.
 

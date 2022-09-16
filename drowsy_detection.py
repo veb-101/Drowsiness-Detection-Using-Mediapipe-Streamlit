@@ -11,6 +11,7 @@ def get_mediapipe_app(
     min_detection_confidence=0.5,
     min_tracking_confidence=0.5,
 ):
+    """Initialize and return Mediapipe FaceMesh Solution Graph object"""
     face_mesh = mp.solutions.face_mesh.FaceMesh(
         max_num_faces=max_num_faces,
         refine_landmarks=refine_landmarks,
@@ -92,6 +93,10 @@ def plot_text(image, text, origin, color, font=cv2.FONT_HERSHEY_SIMPLEX, fntScal
 
 class DrowsinessDetectionVideoFrameHandler:
     def __init__(self):
+        """
+        Intialize the necessary constants, mediapipe app
+        and tracker variables
+        """
         # Left and right eye chosen landmarks.
         self.eye_idxs = {
             "left": [362, 385, 387, 263, 373, 380],
@@ -104,14 +109,13 @@ class DrowsinessDetectionVideoFrameHandler:
         self.RED = (0, 0, 255)  # BGR
         self.GREEN = (0, 255, 0)  # BGR
 
-        # Initializing Mediapipe FaceMesh solution pipeline 
+        # Initializing Mediapipe FaceMesh solution pipeline
         self.facemesh_model = get_mediapipe_app()
-
 
         # For tracking counters and sharing states in and out of callbacks.
         self.state_tracker = {
             "start_time": time.perf_counter(),
-            "DROWSY_TIME": 0.0,
+            "DROWSY_TIME": 0.0,  # Holds the amount of time passed with EAR < EAR_THRESH
             "COLOR": self.GREEN,
             "play_alarm": False,
         }
@@ -119,15 +123,26 @@ class DrowsinessDetectionVideoFrameHandler:
         self.EAR_txt_pos = (10, 30)
 
     def process(self, frame: np.array, thresholds: dict):
-        
-        # To improve performance, 
+        """
+        This function is used to implement our Drowsy detextion algorithm
+
+        Args:
+            frame: (np.arrray) Input frame matrix.
+            thresholds: (dict) Contains the two threshold values
+                               WAIT_TIME and EAR_THRESH.
+
+        Returns:
+            The processed frame and a boolean flag to
+            indicate if the alarm should be played or not.
+        """
+
+        # To improve performance,
         # mark the frame as not writeable to pass by reference.
         frame.flags.writeable = False
         frame_h, frame_w, _ = frame.shape
 
         DROWSY_TIME_txt_pos = (10, int(frame_h // 2 * 1.7))
         ALM_txt_pos = (10, int(frame_h // 2 * 1.85))
-
 
         results = self.facemesh_model.process(frame)
 
