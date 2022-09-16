@@ -3,4 +3,5 @@ opencv-python-headless
 pydub
 mediapipe
 streamlit
-streamlit_webrtc
+aiortc==1.3.2
+streamlit_webrtc==0.43.0
