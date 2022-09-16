@@ -1,7 +1,8 @@
+pyOpenSSL
+aiortc
 numpy
 opencv-python-headless
 pydub
 mediapipe
 streamlit
-aiortc==1.3.2
 streamlit_webrtc
