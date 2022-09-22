@@ -6,8 +6,8 @@ from streamlit_webrtc import VideoHTMLAttributes, webrtc_streamer
 
 from audio_handling import AudioFrameHandler
 from drowsy_detection import VideoFrameHandler
-
 from ads import css_string
+
 
 # Define the audio file to use.
 alarm_file_path = os.path.join("audio", "wake_up_og.wav")
@@ -16,13 +16,15 @@ alarm_file_path = os.path.join("audio", "wake_up_og.wav")
 st.set_page_config(
     page_title="Drowsiness Detection | LearnOpenCV",
     page_icon="https://learnopencv.com/wp-content/uploads/2017/12/favicon.png",
-    layout="centered",  # centered, wide
+    layout="centered",
     initial_sidebar_state="expanded",
     menu_items={
         "About": "### Visit www.learnopencv.com for more exciting tutorials!!!",
     },
 )
 
+# Banner for newletter subscription, jobs and consulting.
+st.sidebar.markdown(css_string, unsafe_allow_html=True)
 
 st.title("Drowsiness Detection!")
 
@@ -41,6 +43,7 @@ thresholds = {
     "WAIT_TIME": WAIT_TIME,
 }
 
+# For streamlit-webrtc
 video_handler = VideoFrameHandler()
 audio_handler = AudioFrameHandler(sound_file_path=alarm_file_path)
 
@@ -68,15 +71,11 @@ def audio_frame_callback(frame: av.AudioFrame):
 
 # https://github.com/whitphx/streamlit-webrtc/blob/main/streamlit_webrtc/config.py
 
-with st.container():
-    ctx = webrtc_streamer(
-        key="drowsiness-detection",
-        video_frame_callback=video_frame_callback,
-        audio_frame_callback=audio_frame_callback,
-        rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},  # Add this config
-        media_stream_constraints={"video": {"width": {"ideal": 480}, "height": {"ideal": 480}}, "audio": True},
-        video_html_attrs=VideoHTMLAttributes(autoPlay=True, controls=False, muted=False),
-    )
-
-with st.container():
-    st.sidebar.markdown(css_string, unsafe_allow_html=True)
+ctx = webrtc_streamer(
+    key="drowsiness-detection",
+    video_frame_callback=video_frame_callback,
+    audio_frame_callback=audio_frame_callback,
+    rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},  # Add this to config for cloud deployment.
+    media_stream_constraints={"video": {"width": {"ideal": 480}, "height": {"ideal": 480}}, "audio": True},
+    video_html_attrs=VideoHTMLAttributes(autoPlay=True, controls=False, muted=False),
+)
