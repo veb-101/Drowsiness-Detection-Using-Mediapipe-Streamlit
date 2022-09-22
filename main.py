@@ -1,3 +1,4 @@
+import os
 import av
 import threading
 import streamlit as st
@@ -6,14 +7,16 @@ from streamlit_webrtc import VideoHTMLAttributes, webrtc_streamer
 from audio_handling import AudioFrameHandler
 from drowsy_detection import VideoFrameHandler
 
+from ads import css_string
+
 # Define the audio file to use.
-alarm_file_path = r"audio/wake_up_og.wav"
+alarm_file_path = os.path.join("audio", "wake_up_og.wav")
 
 # Streamlit Components
 st.set_page_config(
     page_title="Drowsiness Detection | LearnOpenCV",
     page_icon="https://learnopencv.com/wp-content/uploads/2017/12/favicon.png",
-    layout="centered",
+    layout="centered",  # centered, wide
     initial_sidebar_state="expanded",
     menu_items={
         "About": "### Visit www.learnopencv.com for more exciting tutorials!!!",
@@ -23,7 +26,7 @@ st.set_page_config(
 
 st.title("Drowsiness Detection!")
 
-col1, col2 = st.columns(2)
+col1, col2 = st.columns(spec=[1, 1])
 
 with col1:
     # Lowest valid value of Eye Aspect Ratio. Ideal values [0.15, 0.2].
@@ -37,7 +40,6 @@ thresholds = {
     "EAR_THRESH": EAR_THRESH,
     "WAIT_TIME": WAIT_TIME,
 }
-
 
 video_handler = VideoFrameHandler()
 audio_handler = AudioFrameHandler(sound_file_path=alarm_file_path)
@@ -66,11 +68,15 @@ def audio_frame_callback(frame: av.AudioFrame):
 
 # https://github.com/whitphx/streamlit-webrtc/blob/main/streamlit_webrtc/config.py
 
-ctx = webrtc_streamer(
-    key="drowsiness-detection",
-    video_frame_callback=video_frame_callback,
-    audio_frame_callback=audio_frame_callback,
-    rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},  # Add this config
-    media_stream_constraints={"video": {"width": {"ideal": 480}, "height": {"ideal": 480}}, "audio": True},
-    video_html_attrs=VideoHTMLAttributes(autoPlay=True, controls=False, muted=False),
-)
+with st.container():
+    ctx = webrtc_streamer(
+        key="drowsiness-detection",
+        video_frame_callback=video_frame_callback,
+        audio_frame_callback=audio_frame_callback,
+        rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},  # Add this config
+        media_stream_constraints={"video": {"width": {"ideal": 480}, "height": {"ideal": 480}}, "audio": True},
+        video_html_attrs=VideoHTMLAttributes(autoPlay=True, controls=False, muted=False),
+    )
+
+with st.container():
+    st.sidebar.markdown(css_string, unsafe_allow_html=True)
