@@ -3,13 +3,13 @@ import threading
 import streamlit as st
 from streamlit_webrtc import VideoHTMLAttributes, webrtc_streamer
 
-from audio_handling import AudioHandler
-from drowsy_detection import DrowsinessDetectionVideoFrameHandler
+from audio_handling import AudioFrameHandler
+from drowsy_detection import VideoFrameHandler
 
-# Define the audio 
+# Define the audio file to use.
 alarm_file_path = r"audio/wake_up_og.wav"
 
-
+# Streamlit Components
 st.set_page_config(
     page_title="Drowsiness Detection | LearnOpenCV",
     page_icon="https://learnopencv.com/wp-content/uploads/2017/12/favicon.png",
@@ -30,7 +30,7 @@ with col1:
     EAR_THRESH = st.slider("Eye Aspect Ratio threshold:", 0.0, 0.4, 0.18, 0.01)
 
 with col2:
-    # The amount to time (in seconds) to wait before sounding the alarm.
+    # The amount of time (in seconds) to wait before sounding the alarm.
     WAIT_TIME = st.slider("Seconds to wait before sounding alarm:", 0.0, 5.0, 1.0, 0.25)
 
 thresholds = {
@@ -39,11 +39,10 @@ thresholds = {
 }
 
 
-video_handler = DrowsinessDetectionVideoFrameHandler()
-audio_handler = AudioHandler(sound_file_path=alarm_file_path)
+video_handler = VideoFrameHandler()
+audio_handler = AudioFrameHandler(sound_file_path=alarm_file_path)
 
-lock = threading.Lock()  # thread-safe access & prevent race condition.
-
+lock = threading.Lock()  # For thread-safe access & to prevent race-condition.
 shared_state = {"play_alarm": False}
 
 
@@ -58,10 +57,10 @@ def video_frame_callback(frame: av.VideoFrame):
 
 
 def audio_frame_callback(frame: av.AudioFrame):
-    with lock:
+    with lock:  # access the current “play_alarm” state
         play_alarm = shared_state["play_alarm"]
 
-    new_frame: av.AudioFrame = audio_handler.process_audio_frame(frame, play_sound=play_alarm)
+    new_frame: av.AudioFrame = audio_handler.process(frame, play_sound=play_alarm)
     return new_frame
 
 

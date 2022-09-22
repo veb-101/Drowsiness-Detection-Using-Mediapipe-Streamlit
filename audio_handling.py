@@ -3,7 +3,7 @@ import numpy as np
 from pydub import AudioSegment
 
 
-class AudioHandler:
+class AudioFrameHandler:
     """To play/pass custom audio based on some event"""
 
     def __init__(self, sound_file_path: str = ""):
@@ -42,7 +42,7 @@ class AudioHandler:
 
         self.audio_segments_created = True
 
-    def process_audio_frame(self, frame: av.AudioFrame, play_sound: bool = False):
+    def process(self, frame: av.AudioFrame, play_sound: bool = False):
 
         """
         Takes in the current input audio frame and based on play_sound boolean value
@@ -91,7 +91,3 @@ class AudioHandler:
         new_frame.sample_rate = frame.sample_rate
 
         return new_frame
-
-
-if __name__ == "__main__":
-    audio = AudioHandler(sound_file_path="beep.wav")

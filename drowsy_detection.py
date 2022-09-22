@@ -41,7 +41,7 @@ def get_ear(landmarks, refer_idxs, frame_width, frame_height):
         frame_height: (int) Height of captured frame
 
     Returns:
-        ear: (float) Eye apect ratio
+        ear: (float) Eye aspect ratio
     """
     try:
         # Compute the euclidean distance between the horizontal
@@ -91,10 +91,10 @@ def plot_text(image, text, origin, color, font=cv2.FONT_HERSHEY_SIMPLEX, fntScal
     return image
 
 
-class DrowsinessDetectionVideoFrameHandler:
+class VideoFrameHandler:
     def __init__(self):
         """
-        Intialize the necessary constants, mediapipe app
+        Initialize the necessary constants, mediapipe app
         and tracker variables
         """
         # Left and right eye chosen landmarks.
@@ -104,8 +104,7 @@ class DrowsinessDetectionVideoFrameHandler:
         }
 
         # Used for coloring landmark points.
-        # It's value depends on the condition whether the EAR value
-        # has dropped below threshold limit or not.
+        # Its value depends on the current EAR value.
         self.RED = (0, 0, 255)  # BGR
         self.GREEN = (0, 255, 0)  # BGR
 
@@ -124,10 +123,10 @@ class DrowsinessDetectionVideoFrameHandler:
 
     def process(self, frame: np.array, thresholds: dict):
         """
-        This function is used to implement our Drowsy detextion algorithm
+        This function is used to implement our Drowsy detection algorithm
 
         Args:
-            frame: (np.arrray) Input frame matrix.
+            frame: (np.array) Input frame matrix.
             thresholds: (dict) Contains the two threshold values
                                WAIT_TIME and EAR_THRESH.
 
@@ -182,6 +181,7 @@ class DrowsinessDetectionVideoFrameHandler:
             self.state_tracker["COLOR"] = self.GREEN
             self.state_tracker["play_alarm"] = False
 
-            frame = cv2.flip(frame, 1)  # Flip the frame horizontally for a selfie-view display.
+            # Flip the frame horizontally for a selfie-view display.
+            frame = cv2.flip(frame, 1)
 
         return frame, self.state_tracker["play_alarm"]
