@@ -2,6 +2,7 @@ import os
 import av
 import threading
 import streamlit as st
+import streamlit_nested_layout
 from streamlit_webrtc import VideoHTMLAttributes, webrtc_streamer
 
 from audio_handling import AudioFrameHandler
@@ -16,7 +17,7 @@ alarm_file_path = os.path.join("audio", "wake_up_og.wav")
 st.set_page_config(
     page_title="Drowsiness Detection | LearnOpenCV",
     page_icon="https://learnopencv.com/wp-content/uploads/2017/12/favicon.png",
-    layout="centered",
+    layout="wide",  # centered, wide
     initial_sidebar_state="expanded",
     menu_items={
         "About": "### Visit www.learnopencv.com for more exciting tutorials!!!",
@@ -24,19 +25,26 @@ st.set_page_config(
 )
 
 # Banner for newletter subscription, jobs and consulting.
-st.sidebar.markdown(css_string, unsafe_allow_html=True)
+# st.sidebar.markdown(css_string, unsafe_allow_html=True)
 
-st.title("Drowsiness Detection!")
 
-col1, col2 = st.columns(spec=[1, 1])
+col1, col2 = st.columns(spec=[6, 4])
 
 with col1:
-    # Lowest valid value of Eye Aspect Ratio. Ideal values [0.15, 0.2].
-    EAR_THRESH = st.slider("Eye Aspect Ratio threshold:", 0.0, 0.4, 0.18, 0.01)
+    st.title("Drowsiness Detection!!!🥱😪😴")
+    with st.container():
+        c1, c2 = st.columns(spec=[1, 1], gap="large")
+        with c1:
+            # The amount of time (in seconds) to wait before sounding the alarm.
+            WAIT_TIME = st.slider("Seconds to wait before sounding alarm:", 0.0, 5.0, 1.0, 0.25)
+
+        with c2:
+            # Lowest valid value of Eye Aspect Ratio. Ideal values [0.15, 0.2].
+            EAR_THRESH = st.slider("Eye Aspect Ratio threshold:", 0.0, 0.4, 0.18, 0.01)
 
 with col2:
-    # The amount of time (in seconds) to wait before sounding the alarm.
-    WAIT_TIME = st.slider("Seconds to wait before sounding alarm:", 0.0, 5.0, 1.0, 0.25)
+    # Banner for newsletter subscription, jobs, and consulting.
+    st.markdown(css_string, unsafe_allow_html=True)
 
 thresholds = {
     "EAR_THRESH": EAR_THRESH,
@@ -71,11 +79,12 @@ def audio_frame_callback(frame: av.AudioFrame):
 
 # https://github.com/whitphx/streamlit-webrtc/blob/main/streamlit_webrtc/config.py
 
-ctx = webrtc_streamer(
-    key="drowsiness-detection",
-    video_frame_callback=video_frame_callback,
-    audio_frame_callback=audio_frame_callback,
-    rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},  # Add this to config for cloud deployment.
-    media_stream_constraints={"video": {"width": {"ideal": 480}, "height": {"ideal": 480}}, "audio": True},
-    video_html_attrs=VideoHTMLAttributes(autoPlay=True, controls=False, muted=False),
-)
+with col1:
+    ctx = webrtc_streamer(
+        key="drowsiness-detection",
+        video_frame_callback=video_frame_callback,
+        audio_frame_callback=audio_frame_callback,
+        rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},  # Add this to config for cloud deployment.
+        media_stream_constraints={"video": {"height": {"ideal": 480}}, "audio": True},
+        video_html_attrs=VideoHTMLAttributes(autoPlay=True, controls=False, muted=False),
+    )
