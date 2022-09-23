@@ -25,7 +25,7 @@ st.set_page_config(
 )
 
 
-col1, col2 = st.columns(spec=[6, 2], gap="large")
+col1, col2 = st.columns(spec=[6, 2], gap="medium")
 
 with col1:
     st.title("Drowsiness Detection!!!🥱😪😴")
