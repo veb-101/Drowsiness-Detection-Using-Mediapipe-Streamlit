@@ -24,9 +24,6 @@ st.set_page_config(
     },
 )
 
-# Banner for newletter subscription, jobs and consulting.
-# st.sidebar.markdown(css_string, unsafe_allow_html=True)
-
 
 col1, col2 = st.columns(spec=[6, 2], gap="large")
 
