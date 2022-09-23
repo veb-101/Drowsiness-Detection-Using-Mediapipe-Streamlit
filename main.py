@@ -28,7 +28,7 @@ st.set_page_config(
 # st.sidebar.markdown(css_string, unsafe_allow_html=True)
 
 
-col1, col2 = st.columns(spec=[6, 4])
+col1, col2 = st.columns(spec=[6, 2], gap="large")
 
 with col1:
     st.title("Drowsiness Detection!!!🥱😪😴")
@@ -41,10 +41,6 @@ with col1:
         with c2:
             # Lowest valid value of Eye Aspect Ratio. Ideal values [0.15, 0.2].
             EAR_THRESH = st.slider("Eye Aspect Ratio threshold:", 0.0, 0.4, 0.18, 0.01)
-
-with col2:
-    # Banner for newsletter subscription, jobs, and consulting.
-    st.markdown(css_string, unsafe_allow_html=True)
 
 thresholds = {
     "EAR_THRESH": EAR_THRESH,
@@ -88,3 +84,7 @@ with col1:
         media_stream_constraints={"video": {"height": {"ideal": 480}}, "audio": True},
         video_html_attrs=VideoHTMLAttributes(autoPlay=True, controls=False, muted=False),
     )
+
+with col2:
+    # Banner for newsletter subscription, jobs, and consulting.
+    st.markdown(css_string, unsafe_allow_html=True)
