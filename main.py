@@ -33,7 +33,7 @@ col1, col2 = st.columns(spec=[6, 4])
 with col1:
     st.title("Drowsiness Detection!!!🥱😪😴")
     with st.container():
-        c1, c2 = st.columns(spec=[1, 1], gap="large")
+        c1, c2 = st.columns(spec=[1, 1])
         with c1:
             # The amount of time (in seconds) to wait before sounding the alarm.
             WAIT_TIME = st.slider("Seconds to wait before sounding alarm:", 0.0, 5.0, 1.0, 0.25)
