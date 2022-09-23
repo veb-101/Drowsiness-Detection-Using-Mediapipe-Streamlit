@@ -6,3 +6,4 @@ pydub
 mediapipe
 streamlit
 streamlit_webrtc
+streamlit-nested-layout
