@@ -2,8 +2,8 @@ cryptography==38.0.0
 pyOpenSSL
 aiortc
 numpy
+opencv-python-headless
 pydub
-opencv-python
 mediapipe
 streamlit
 streamlit_webrtc
