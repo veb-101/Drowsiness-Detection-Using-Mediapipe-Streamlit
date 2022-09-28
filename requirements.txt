@@ -3,7 +3,6 @@ pyOpenSSL
 aiortc
 numpy
 pydub
-opencv-python-headless
 mediapipe
 streamlit
 streamlit_webrtc
