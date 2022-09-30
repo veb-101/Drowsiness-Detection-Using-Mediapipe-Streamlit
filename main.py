@@ -11,7 +11,7 @@ from ads import css_string
 
 
 # Define the audio file to use.
-alarm_file_path = os.path.join("audio", "wake_up_og.wav")
+alarm_file_path = os.path.join("audio", "wake_up.wav")
 
 # Streamlit Components
 st.set_page_config(
