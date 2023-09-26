@@ -76,6 +76,3 @@ with col1:
         video_html_attrs=VideoHTMLAttributes(autoPlay=True, controls=False, muted=False),
     )
 
-with col2:
-
-    st.markdown(css_string, unsafe_allow_html=True)
