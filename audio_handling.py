@@ -44,13 +44,6 @@ class AudioFrameHandler:
 
     def process(self, frame: av.AudioFrame, play_sound: bool = False):
 
-        """
-        Takes in the current input audio frame and based on play_sound boolean value
-        either starts sending the custom audio frame or dampens the frame wave to emulate silence.
-
-        For eg. playing a notification based on some event.
-        """
-
         if not self.audio_segments_created:
             self.prepare_audio(frame)
 
