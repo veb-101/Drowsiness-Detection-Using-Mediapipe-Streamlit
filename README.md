@@ -2,10 +2,6 @@
 
 A drowsiness detection application created using mediapipe, streamlit and streamlit-webrtc
 
-This repository contains the app deployment code on streamlit cloud. <br>
-To understand more refer to my blogpost: [Driver Drowsiness Detection Using Mediapipe In Python | LearnOpenCV](https://learnopencv.com/driver-drowsiness-detection-using-mediapipe-in-python/) 
-
-
 
 Libraries used:
 
